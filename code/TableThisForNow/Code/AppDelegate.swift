@@ -20,7 +20,7 @@ class ModelObject : NSObject {
 }
 
 class TableViewCell : UITableViewCell {
-    override init?(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: UITableViewCellStyle.Value1, reuseIdentifier: reuseIdentifier)
     }
 
