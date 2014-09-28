@@ -99,6 +99,28 @@ class 🍷 {
 
 ---
 
+# Swift command line tools
+
+```
+$ xcrun swift
+Welcome to Swift!  Type :help for assistance.
+
+$ xcrun swiftc Foo.swift
+## will compile an executable
+
+$ xcrun swift-stdlib-tool
+## assembles libraries for an application bundle
+
+$ xcrun swift-demangle _TtCSs29_NativeDictionaryStorageOwner
+_TtCSs29_NativeDictionaryStorageOwner ---> Swift._NativeDictionaryStorageOwner
+```
+
+![](images/laptop-hacker.jpg)
+
+---
+
+### *Let's drop close to the metal*
+
 ![](images/rob.gif)
 
 ---
@@ -124,7 +146,6 @@ class MyObject : NSObject {
 
 ---
 
-- has *NSObject* as superclass
 - behaves like any old Objective-C object
 - instance variables are *properties*
 - fully interopable with ObjC
@@ -164,6 +185,8 @@ but
 Playground execution failed: Error in auto-import:
 failed to get module 'runtime' from AST context
 ```
+
+(rdar://problem/18482380)
 
 ---
 
@@ -212,6 +235,8 @@ Segmentation fault: 11
 
 ```swift
 struct MyObject {
+	var a : String
+	var b : Array<Int>
 }
 ```
 
@@ -222,6 +247,35 @@ struct MyObject {
 ## In pure Swift, there's no introspection 😭
 
 ![](images/swift-bg.jpg)
+
+---
+
+## There is hope
+
+```swift
+/// How children of this value should be presented in the IDE.
+enum MirrorDisposition {
+    case Struct
+    case Class
+    case Enum
+    case Tuple
+    [...]
+}
+
+/// A protocol that provides a reflection interface to an underlying value.
+protocol MirrorType {
+	[...]
+
+    /// Get the number of logical children this value has.
+    var count: Int { get }
+    subscript (i: Int) -> (String, MirrorType) { get }
+
+    /// Get a string description of this value.
+    var summary: String { get }
+
+    [...]
+}
+```
 
 ---
 
@@ -261,6 +315,102 @@ println(myString.description)
 
 ---
 
+wat.jpg
+
+---
+
+## *Let's take a step back*
+
+![](images/fall-back.gif)
+
+---
+
+# Objects
+
+```c
+typedef struct objc_object {
+	Class isa;
+} *id;
+```
+
+---
+
+# Classes
+
+```c
+struct objc_class {
+	Class isa;
+
+#if !__OBJC2__
+    Class super_class                                        OBJC2_UNAVAILABLE;
+    const char *name                                         OBJC2_UNAVAILABLE;
+    long version                                             OBJC2_UNAVAILABLE;
+    long info                                                OBJC2_UNAVAILABLE;
+    long instance_size                                       OBJC2_UNAVAILABLE;
+    struct objc_ivar_list *ivars                             OBJC2_UNAVAILABLE;
+    struct objc_method_list **methodLists                    OBJC2_UNAVAILABLE;
+    struct objc_cache *cache                                 OBJC2_UNAVAILABLE;
+    struct objc_protocol_list *protocols                     OBJC2_UNAVAILABLE;
+#endif
+} OBJC2_UNAVAILABLE;
+```
+
+---
+
+# Methods
+
+```c
+struct objc_method {
+    SEL method_name                                          OBJC2_UNAVAILABLE;
+    char *method_types                                       OBJC2_UNAVAILABLE;
+    IMP method_imp                                           OBJC2_UNAVAILABLE;
+} OBJC2_UNAVAILABLE;
+```
+
+---
+
+# Method Implementations
+
+```c
+typedef struct objc_selector     *SEL;
+
+typedef id (*IMP)(id self, SEL _cmd ,...);
+```
+
+---
+
+# Message forwarding
+
+```c
++(BOOL)resolveInstanceMethod:(SEL)aSEL;
+
+-(void)forwardInvocation:(NSInvocation*)anInvocation;
+
+-(NSMethodSignature*)methodSignatureForSelector:(SEL)selector;
+
+-(BOOL)respondsToSelector:(SEL)aSelector;
+```
+
+---
+
+# From *UIViewController.h*
+
+```c
+- (void)attentionClassDumpUser:(id)arg1 
+  yesItsUsAgain:(id)arg2 
+  althoughSwizzlingAndOverridingPrivateMethodsIsFun:(id)arg3 
+  itWasntMuchFunWhenYourAppStoppedWorking:(id)arg4 
+  pleaseRefrainFromDoingSoInTheFutureOkayThanksBye:(id)arg5;
+```
+
+---
+
+method_setImplementation
+
+class_addMethod
+
+---
+
 ### Demo: dynamic table view
 
 ---
@@ -271,7 +421,8 @@ println(myString.description)
 
 # SWRoute
 
-PoC of function hooking in Swift
+- PoC of function hooking in Swift
+- Uses `rd_route`, a Mach specific injection library for C
 
 ---
 
