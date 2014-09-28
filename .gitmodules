@@ -1,0 +1,3 @@
+[submodule "memorydumper"]
+	path = memorydumper
+	url = git@github.com:mikeash/memorydumper.git
