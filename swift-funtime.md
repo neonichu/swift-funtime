@@ -34,6 +34,7 @@
 - What is a Swift object?
 - Objective-C runtime in the age of Swift
 - Swift runtime
+- (some Q&A)
 
 ![](images/swift-bg.jpg)
 
@@ -81,6 +82,8 @@ class 🍷 {
 
 ## Drops C++ interoperability
 
+![](images/swift-bg.jpg)
+
 ---
 
 >> Everyone is a Beginner
@@ -96,6 +99,8 @@ class 🍷 {
 - Swift by Tutorials: A Hands-On Approach
 - Your First Swift App
 - Functional Programming in Swift
+
+![](images/swift-bg.jpg)
 
 ---
 
@@ -166,6 +171,7 @@ class MyObject {
 
 - has *SwiftObject* as superclass
 - instance variables are *ivars*
+- ivars have no type encoding
 - methods are **not** ObjC methods
 - not interoperable with ObjC
 
@@ -188,13 +194,19 @@ failed to get module 'runtime' from AST context
 
 (rdar://problem/18482380)
 
+![](images/swift-bg.jpg)
+
 ---
 
 # 😢🐼
 
+![](images/swift-bg.jpg)
+
 ---
 
 ### Demo: Inspect objects
+
+![](images/swift-bg.jpg)
 
 ---
 
@@ -228,6 +240,50 @@ var value : AnyObject = object_getIvar(MySwiftClass(), ivar)!
 ```
 
 Segmentation fault: 11
+
+![](images/swift-bg.jpg)
+
+---
+
+```objc
+#import <Foundation/Foundation.h>
+#import <objc/runtime.h>
+
+@interface MyClass : NSObject
+
+@property (nonatomic, retain) NSString* foo;
+
+@end
+
+#pragma mark -
+
+@implementation MyClass
+
+-(instancetype)init {
+    self = [super init];
+    if (self) {
+        self.foo = @"bar";
+    }
+    return self;
+}
+
+@end
+
+#pragma mark -
+
+int main(int argc, char *argv[])
+{
+    @autoreleasepool {
+        MyClass* object = [MyClass new];
+        Ivar ivar = class_getInstanceVariable(object.class, "_foo");
+        id value = object_getIvar(object, ivar);
+        NSLog(@"%@", value);
+        return 0;
+    }
+}
+```
+
+![left](images/dinosuar-t-rex.jpg)
 
 ---
 
@@ -277,17 +333,57 @@ protocol MirrorType {
 }
 ```
 
+![](images/swift-bg.jpg)
+
+---
+
+```swift
+// From: https://gist.github.com/peebsjs/9288f79322ed3119ece4
+
+infix operator --> {}
+func --> (instance: Any, key: String) -> Any? {
+    let mirror = reflect(instance)
+
+    for index in 0 ..< mirror.count {
+        let (childKey, childMirror) = mirror[index]
+        if childKey == key {
+            return childMirror.value
+        }
+    }
+
+    return nil
+}
+
+//Example
+struct MyPoint {
+    let x: Float
+    let y: Float
+}
+
+let point = MyPoint(x: 1, y: 2)
+println(point --> "x")
+println(point --> "y")
+```
+
+![](images/swift-bg.jpg)
+
 ---
 
 # Objective-C runtime in the age of Swift
+
+![](images/dinosuar-t-rex.jpg)
 
 ---
 
 ## Inherit from `NSObject` and it just works!
 
+![](images/dinosuar-t-rex.jpg)
+
 ---
 
 # Even swizzling 😱
+
+![](images/dinosuar-t-rex.jpg)
 
 ---
 
@@ -313,9 +409,40 @@ method_exchangeImplementations(originalMethod, swizzledMethod)
 println(myString.description)
 ```
 
+![](images/swift-bg.jpg)
+
 ---
 
-wat.jpg
+![](images/wat.jpg)
+
+---
+
+![250%](images/swizzle.jpg)
+
+---
+
+# Or replacing methods
+
+```
+import Foundation
+import ObjectiveC.runtime
+
+let myString = "foobar" as NSString
+
+println(myString.description)
+
+let myBlock : @objc_block (AnyObject!) -> String = { (sself : AnyObject!) -> (String) in
+    "✋"
+}
+
+let myIMP = imp_implementationWithBlock(unsafeBitCast(myBlock, AnyObject.self))
+let method = class_getInstanceMethod(myString.dynamicType, "description")
+method_setImplementation(method, myIMP)
+
+println(myString.description)
+```
+
+![](images/swift-bg.jpg)
 
 ---
 
@@ -332,6 +459,8 @@ typedef struct objc_object {
 	Class isa;
 } *id;
 ```
+
+![](images/dinosuar-t-rex.jpg)
 
 ---
 
@@ -355,6 +484,62 @@ struct objc_class {
 } OBJC2_UNAVAILABLE;
 ```
 
+![](images/dinosuar-t-rex.jpg)
+
+---
+
+## Objects
+
+- struct `magic`
+- contains `refCount` and `isa`
+- methods are in virtual table, like in C++
+
+## Classes
+
+- have mangled names, which contain the module name
+
+![](images/swift-bg.jpg)
+
+---
+
+# Name mangling
+
+another C++ concept
+
+```
+_TFV4test1eCfMS0_FT_S0_ ---> test.e.init (test.e.Type)() -> test.e
+_TMLCCC4test1a1b1c ---> lazy cache variable for type metadata for test.a.b.c
+_TMmCCC4test1a1b1c ---> metaclass for test.a.b.c
+_TMnCC4test1a1b ---> nominal type descriptor for test.a.b
+
+_TTWOV4test1e1fSs9EquatableFS2_oi2eeUS2___fMQPS2_FTS3_S3__Sb ---> protocol witness for Swift.
+Equatable.== infix <A : Swift.Equatable>(Swift.Equatable.Self.Type)
+(Swift.Equatable.Self, Swift.Equatable.Self) -> Swift.Bool in conformance test.e.f : Swift.Equatable
+
+_TWoFC4test1aCfMS0_FT_S0_ ---> witness table offset for 
+test.a.__allocating_init (test.a.Type)() -> test.a
+
+_TWoFCCC4test1a1b1c1dfS2_FT1zS0_1xS1_1vFT1xSi_Si_OVS_1e1f ---> witness table offset 
+for test.a.b.c.d (test.a.b.c)(z : test.a, x : test.a.b, v : 
+(x : Swift.Int) -> Swift.Int) -> test.e.f
+```
+
+---
+
+# How are emoji formed?
+
+```
+$ echo 'class 👍 {}'|xcrun swiftc -emit-library -o test -
+$ nm -g test
+...
+0000000000000db0 T __TFC4testX4ypIhD
+...
+$ xcrun swift-demangle __TFC4testX4ypIhD
+_TFC4testX4ypIhD ---> test.👍.__deallocating_deinit
+```
+
+*X4 ypIh* ~ *xn--yp8h*
+
 ---
 
 # Methods
@@ -367,6 +552,8 @@ struct objc_method {
 } OBJC2_UNAVAILABLE;
 ```
 
+![](images/dinosuar-t-rex.jpg)
+
 ---
 
 # Method Implementations
@@ -376,6 +563,8 @@ typedef struct objc_selector     *SEL;
 
 typedef id (*IMP)(id self, SEL _cmd ,...);
 ```
+
+![](images/dinosuar-t-rex.jpg)
 
 ---
 
@@ -391,6 +580,8 @@ typedef id (*IMP)(id self, SEL _cmd ,...);
 -(BOOL)respondsToSelector:(SEL)aSelector;
 ```
 
+![](images/dinosuar-t-rex.jpg)
+
 ---
 
 # From *UIViewController.h*
@@ -403,19 +594,37 @@ typedef id (*IMP)(id self, SEL _cmd ,...);
   pleaseRefrainFromDoingSoInTheFutureOkayThanksBye:(id)arg5;
 ```
 
+![](images/Apple-logo.png)
+
 ---
 
-method_setImplementation
+# Change classes at runtime
 
-class_addMethod
+- method_setImplementation()
+
+- class_addMethod()
+
+- ...
+
+![](images/dinosuar-t-rex.jpg)
 
 ---
 
 ### Demo: dynamic table view
 
+![](images/swift-bg.jpg)
+
+---
+
+### NSInvocation does not exist
+
+![180%](images/WcCXCSZ.gif)
+
 ---
 
 ## But what can we do about pure Swift?
+
+![](images/swift-bg.jpg)
 
 ---
 
@@ -423,6 +632,8 @@ class_addMethod
 
 - PoC of function hooking in Swift
 - Uses `rd_route`, a Mach specific injection library for C
+
+![](images/swift-bg.jpg)
 
 ---
 
@@ -449,9 +660,13 @@ uintptr_t _rd_get_func_impl(void *func) {
 }
 ```
 
+![](images/swift-bg.jpg)
+
 ---
 
 # Swift runtime
+
+![40%](images/swift-logo.png)
 
 ---
 
@@ -463,6 +678,14 @@ implementations of `NSSwiftArray`, etc.
 
 low-level primitives like `swift_release`
 
+![](images/swift-bg.jpg)
+
+---
+
+# Hopper
+
+![](images/Hopper_v3.png)
+
 ---
 
 ## Compatibility
@@ -470,6 +693,8 @@ low-level primitives like `swift_release`
 - App Compatibility ✅
 - Binary Compatibility ⛔️
 - Source Compatibility ⛔️
+
+![](images/swift-bg.jpg)
 
 ---
 
@@ -487,6 +712,61 @@ Foo.app boris$ find . -type f
 ./PkgInfo
 ./Foo
 ```
+
+![](images/swift-bg.jpg)
+
+---
+
+# Two final tidbits
+
+![](images/swift-bg.jpg)
+
+---
+
+# Speed
+
+- less dynamic dispatch
+- omits `_cmd` - freeing one register
+- usually no pointer aliasing
+
+```
+int *ptrA = malloc(100 * sizeof(*ptrA));
+int *ptrB = ptrA;
+```
+
+![](images/swift-bg.jpg)
+
+---
+
+```
+class BankAccount {
+    var balance: Double = 0.0
+    
+    func deposit(amount: Double) {
+        balance += amount
+    }
+}
+
+let account = BankAccount()
+account.deposit(100)
+
+let depositor = BankAccount.deposit
+depositor(account)(100)
+
+BankAccount.deposit(account)(100)
+```
+
+![](images/swift-bg.jpg)
+
+---
+
+## Methods are curried functions 
+
+![](images/azb6mBK_460sa_v1.gif)
+
+---
+
+![](images/799569.gif)
 
 ---
 
@@ -514,9 +794,18 @@ Foo.app boris$ find . -type f
 
 ---
 
+- https://www.mikeash.com/pyblog/
+- http://airspeedvelocity.net/
+- https://developer.apple.com/swift/blog/
+- http://www.russbishop.net/swift-how-did-i-do-horrible-things
+
+---
+
 @NeoNacho
 
 boris@contentful.com
 
 http://buegling.com/talks
+
+![](images/cocoapods.jpg)
 
