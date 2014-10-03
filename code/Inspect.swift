@@ -18,10 +18,10 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
     var properties : UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(myClass,
         &propertyCount)
 
-    /*for i in 0..<propertyCount {
+    for i in 0..<propertyCount {
         println("Property: " + NSString(CString: property_getName(properties[Int(i)]),
             encoding: NSUTF8StringEncoding)!)
-    }*/
+    }
 
     /*var methodCount : UInt32 = 0
     var methods : UnsafeMutablePointer<Method> = class_copyMethodList(myClass, &methodCount)
@@ -64,7 +64,7 @@ class MyObject {
     }
 }
 
-//inspect(MyObject())
+inspect(MyObject())
 
 println("\n# Objective-C based class")
 
@@ -79,11 +79,11 @@ class MyNSObject : NSObject {
     }
 }
 
-//inspect(MyNSObject())
+inspect(MyNSObject())
 
-var foo = ["foo", "bar"]
+/*var foo = ["foo", "bar"]
 inspect(foo)
 
 var bar = ["foo": "bar"]
-inspect(bar)
+inspect(bar)*/
 
