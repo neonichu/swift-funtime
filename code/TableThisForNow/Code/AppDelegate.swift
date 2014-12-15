@@ -50,7 +50,7 @@ class DynamicDataSource : NSObject, UITableViewDataSource {
 
         cell.textLabel!.text = NSString(CString: property_getName(property),
             encoding: NSUTF8StringEncoding)
-        cell.detailTextLabel!.text = modelObject.valueForKey(cell.textLabel!.text).description
+        cell.detailTextLabel!.text = modelObject.valueForKey(cell.textLabel!.text!) as? String //.description
 
         return cell
     }
