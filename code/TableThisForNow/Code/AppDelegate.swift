@@ -45,12 +45,11 @@ class DynamicDataSource : NSObject, UITableViewDataSource {
 
     func tableView(tv: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tv.dequeueReusableCellWithIdentifier(NSStringFromClass(modelObject.dynamicType),
-            forIndexPath: indexPath) as UITableViewCell
+            forIndexPath: indexPath) as! UITableViewCell
         let property = properties[indexPath.row]
 
-        cell.textLabel!.text = NSString(CString: property_getName(property),
-            encoding: NSUTF8StringEncoding)
-        cell.detailTextLabel!.text = modelObject.valueForKey(cell.textLabel!.text).description
+        cell.textLabel!.text = String.fromCString(property_getName(property))
+        cell.detailTextLabel!.text = modelObject.valueForKey(cell.textLabel!.text!)!.description
 
         return cell
     }
