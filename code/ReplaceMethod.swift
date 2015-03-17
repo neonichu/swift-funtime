@@ -1,3 +1,5 @@
+#!/usr/bin/xcrun swift
+
 import Foundation
 import ObjectiveC.runtime
 

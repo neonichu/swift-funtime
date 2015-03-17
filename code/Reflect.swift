@@ -1,3 +1,5 @@
+#!/usr/bin/xcrun swift
+
 // From: https://gist.github.com/peebsjs/9288f79322ed3119ece4
 
 infix operator --> {}

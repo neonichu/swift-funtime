@@ -1,3 +1,5 @@
+#!/usr/bin/xcrun swift
+
 var mirror = ["a", "b"].getMirror()
 
 println(mirror.summary)
