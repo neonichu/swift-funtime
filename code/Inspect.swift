@@ -1,3 +1,5 @@
+#!/usr/bin/xcrun swift
+
 import Foundation
 import ObjectiveC.runtime
 
@@ -8,10 +10,8 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
     var ivars : UnsafeMutablePointer<Ivar> = class_copyIvarList(myClass, &ivarCount)
 
     for i in 0..<ivarCount {
-        print("Ivar: " + NSString(CString: ivar_getName(ivars[Int(i)]),
-            encoding: NSUTF8StringEncoding)!)
-        println(" " + NSString(CString: ivar_getTypeEncoding(ivars[Int(i)]),
-            encoding: NSUTF8StringEncoding)!)
+        print("Ivar: " + String.fromCString(ivar_getName(ivars[Int(i)]))!)
+        println(" " + String.fromCString(ivar_getTypeEncoding(ivars[Int(i)]))!)
     }
 
     var propertyCount : UInt32 = 0
@@ -19,8 +19,7 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
         &propertyCount)
 
     for i in 0..<propertyCount {
-        println("Property: " + NSString(CString: property_getName(properties[Int(i)]),
-            encoding: NSUTF8StringEncoding)!)
+        println("Property: " + String.fromCString(property_getName(properties[Int(i)]))!)
     }
 
     /*var methodCount : UInt32 = 0
@@ -36,13 +35,13 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
         &protocolCount)
 
     for i in 0..<protocolCount {
-        println("Protocol: " + NSString(CString: protocol_getName(protocols[Int(i)]),
-            encoding: NSUTF8StringEncoding)!)
+        println("Protocol: " + String.fromCString(protocol_getName(protocols[Int(i)]))!)
     }
 }
 
 func inspect(obj : AnyObject) -> Void {
-    println("Mangled name: \(_stdlib_getTypeName(obj))")
+    // TODO: Missing in Swift 1.2
+    //println("Mangled name: \(_stdlib_getTypeName(obj))")
 
     var myClass: AnyObject.Type = obj.dynamicType
     inspectClass(myClass)
