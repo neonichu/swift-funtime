@@ -40,6 +40,12 @@
 
 ---
 
+# Is it a bar?
+
+![](images/bar.jpg)
+
+---
+
 # It depends
 
 ![](images/taylor4.jpg)
@@ -523,6 +529,17 @@ _TFC4testX4ypIhD ---> test.👍.__deallocating_deinit
 *X4 ypIh* ~ *xn--yp8h*
 
 ![](images/taylor4.jpg)
+
+---
+
+# What have we learned?
+
+- `import ObjectiveC.runtime` ☺️
+- Introspection somewhat exists 😐
+- Changing behaviour is hard  😖
+- Reverse engineering is still fine 😅
+
+![](images/taylor8.jpg)
 
 ---
 
