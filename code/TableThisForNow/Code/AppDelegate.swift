@@ -45,7 +45,7 @@ class DynamicDataSource : NSObject, UITableViewDataSource {
 
     func tableView(tv: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tv.dequeueReusableCellWithIdentifier(NSStringFromClass(modelObject.dynamicType),
-            forIndexPath: indexPath) as! UITableViewCell
+            forIndexPath: indexPath) as UITableViewCell
         let property = properties[indexPath.row]
 
         cell.textLabel!.text = String.fromCString(property_getName(property))
@@ -68,12 +68,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions
         launchOptions: [NSObject: AnyObject]?) -> Bool {
 
-            var modelObject = ModelObject(foo: "Hello World",
+            let modelObject = ModelObject(foo: "Hello World",
                 bar: NSDate(timeIntervalSinceNow: 10000))
 
             dataSource = DynamicDataSource(modelObject: modelObject)
 
-            var rootVC = UITableViewController()
+            let rootVC = UITableViewController()
             rootVC.tableView.contentInset = UIEdgeInsetsMake(20.0, 0.0, 0.0, 0.0)
             rootVC.tableView.dataSource = dataSource
             rootVC.tableView.registerClass(TableViewCell.classForCoder(),

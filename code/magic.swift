@@ -10,5 +10,5 @@ var ivars : UnsafeMutablePointer<Ivar> = class_copyIvarList(class_getSuperclass(
 
 for i in 0..<ivarCount {
     print("Ivar: " + String.fromCString(ivar_getName(ivars[Int(i)]))!)
-    println(" " + String.fromCString(ivar_getTypeEncoding(ivars[Int(i)]))!)
+    print(" " + String.fromCString(ivar_getTypeEncoding(ivars[Int(i)]))!)
 }

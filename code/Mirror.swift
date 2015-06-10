@@ -2,9 +2,9 @@
 
 var mirror = ["a", "b"].getMirror()
 
-println(mirror.summary)
+print(mirror.summary)
 
 for i in 0..<mirror.count {
     let (unknown, submirror) = mirror[i]
-    println(submirror.summary)
+    print(submirror.summary)
 }

@@ -11,11 +11,11 @@ extension NSString {
 
 var myString = "foobar" as NSString
 
-println(myString.description)
+print(myString.description)
 
 var originalMethod = class_getInstanceMethod(NSString.self, "description")
 var swizzledMethod = class_getInstanceMethod(NSString.self, "swizzle_description")
 
 method_exchangeImplementations(originalMethod, swizzledMethod)
 
-println(myString.description)
+print(myString.description)

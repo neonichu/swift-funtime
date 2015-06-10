@@ -10,7 +10,7 @@ func symbolInfo(address: UInt) -> Dl_info? {
     return (result == 0 ? nil : info)
 }
 
-extension COpaquePointer: Printable {
+extension COpaquePointer: CustomStringConvertible {
     public var description: String {
         let info = symbolInfo(unsafeBitCast(self, UInt.self))
 
@@ -40,7 +40,7 @@ let sym = dlsym(handle, "random")
 //let pointer  = COpaquePointer(sym)
 
 let pointer = COpaquePointer("/usr/lib/libc.dylib", "random")
-println(pointer.description)
+print(pointer.description)
 exit(0)
 
 
@@ -49,12 +49,12 @@ exit(0)
 
 let rawPointer = UnsafeMutablePointer<() -> CLong>(sym)
 let opaquePointer = COpaquePointer(rawPointer)
-let functionPointer = CFunctionPointer<() -> CLong>(opaquePointer)
-
-println(functionPointer)
+typealias CFunction = @convention(c) () -> CLong
+let functionPointer = unsafeBitCast(opaquePointer, CFunction.self)
+print(functionPointer)
 
 /*let result : CLong = rawPointer.memory()
-println(result)*/
+print(result)*/
 
 
 func callf(f: () -> ()) {
@@ -62,22 +62,22 @@ func callf(f: () -> ()) {
 }
 
 typealias fpointer = () -> ()
-println(sizeof(functionPointer.dynamicType))
-println(sizeof(fpointer))
+print(sizeof(functionPointer.dynamicType))
+print(sizeof(fpointer))
 
 /*let functionPointer = unsafeBitCast(rawPointer, fpointer.self)
 callf(functionPointer)*/
 
 let cstr = symbolInfo(unsafeBitCast(rawPointer, UInt.self))?.dli_sname
-println(String.fromCString(cstr!))
+print(String.fromCString(cstr!))
 
 
 
 @asmname("random") func random2() -> CLong
 @asmname("srandomdev") func srandomdev() -> Void
 
-println(sizeof(random2.dynamicType))
-println(random2())
+print(sizeof(random2.dynamicType))
+print(random2())
 
 
 struct swift_func_object {
@@ -91,27 +91,27 @@ struct bar {
     let function_pointer: COpaquePointer
 }
 
-println(sizeof(swift_func_object))
+print(sizeof(swift_func_object))
 
 var ptr = unsafeBitCast(random2, swift_func_object.self)
-println(ptr.original_type_ptr)
-println(ptr.function_address)
+print(ptr.original_type_ptr)
+print(ptr.function_address)
 
 /*ptr = unsafeBitCast(srandomdev, swift_func_object.self)
-println(ptr.original_type_ptr)
-println(ptr.function_address)*/
+print(ptr.original_type_ptr)
+print(ptr.function_address)*/
 
 let aptr = UnsafeMutablePointer<bar>(ptr.function_address)
 let aptr2 = aptr.memory
-println(aptr2.function_pointer)
+print(aptr2.function_pointer)
 
 
 let v = unsafeBitCast(aptr2.function_pointer, UInt.self)
 let v2 = COpaquePointer(bitPattern: v)
-println(v2)
+print(v2)
 
 let symInfo = symbolInfo(v)
-println(String.fromCString((symInfo?.dli_sname)!))
+print(String.fromCString((symInfo?.dli_sname)!))
 
 
 

@@ -4,14 +4,14 @@ import Foundation
 import ObjectiveC.runtime
 
 func inspectClass(myClass : AnyObject.Type) -> Void {
-    println("Name: " + NSStringFromClass(myClass))
+    print("Name: " + NSStringFromClass(myClass))
 
     var ivarCount : UInt32 = 0
     var ivars : UnsafeMutablePointer<Ivar> = class_copyIvarList(myClass, &ivarCount)
 
     for i in 0..<ivarCount {
         print("Ivar: " + String.fromCString(ivar_getName(ivars[Int(i)]))!)
-        println(" " + String.fromCString(ivar_getTypeEncoding(ivars[Int(i)]))!)
+        print(" " + String.fromCString(ivar_getTypeEncoding(ivars[Int(i)]))!)
     }
 
     var propertyCount : UInt32 = 0
@@ -19,7 +19,7 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
         &propertyCount)
 
     for i in 0..<propertyCount {
-        println("Property: " + String.fromCString(property_getName(properties[Int(i)]))!)
+        print("Property: " + String.fromCString(property_getName(properties[Int(i)]))!)
     }
 
     /*var methodCount : UInt32 = 0
@@ -27,7 +27,7 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
 
     for i in 0..<methodCount {
         print("Method: ")
-        println(method_getName(methods[Int(i)]))
+        print(method_getName(methods[Int(i)]))
     }*/
 
     var protocolCount : UInt32 = 0
@@ -35,22 +35,22 @@ func inspectClass(myClass : AnyObject.Type) -> Void {
         &protocolCount)
 
     for i in 0..<protocolCount {
-        println("Protocol: " + String.fromCString(protocol_getName(protocols[Int(i)]))!)
+        print("Protocol: " + String.fromCString(protocol_getName(protocols[Int(i)]))!)
     }
 }
 
 func inspect(obj : AnyObject) -> Void {
     // TODO: Missing in Swift 1.2
-    //println("Mangled name: \(_stdlib_getTypeName(obj))")
+    //print("Mangled name: \(_stdlib_getTypeName(obj))")
 
-    var myClass: AnyObject.Type = obj.dynamicType
+    let myClass: AnyObject.Type = obj.dynamicType
     inspectClass(myClass)
 
-    var superClass: AnyObject.Type = class_getSuperclass(myClass)
+    let superClass: AnyObject.Type = class_getSuperclass(myClass)
     inspectClass(superClass)
 }
 
-println("# Swift based class")
+print("# Swift based class")
 
 class MyObject {
     var foo : String = "foo"
@@ -65,7 +65,7 @@ class MyObject {
 
 inspect(MyObject())
 
-println("\n# Objective-C based class")
+print("\n# Objective-C based class")
 
 class MyNSObject : NSObject {
     var foo : String = "foo"

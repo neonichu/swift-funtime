@@ -23,5 +23,5 @@ struct MyPoint {
 }
 
 let point = MyPoint(x: 1, y: 2)
-println(point --> "x")
-println(point --> "y")
+print(point --> "x")
+print(point --> "y")

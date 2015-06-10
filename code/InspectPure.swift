@@ -9,6 +9,8 @@ let f = Foo()
 
 import Foundation
 
-println(f.dynamicType)
-println(CFunctionPointer<(() -> ())>.self)
-println([Int].self)
+typealias CFunction = @convention(c) () -> ()
+
+print(f.dynamicType)
+print(CFunction.self)
+print([Int].self)

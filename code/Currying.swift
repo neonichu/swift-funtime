@@ -10,11 +10,11 @@ class BankAccount {
 
 let account = BankAccount()
 account.deposit(100)
-println(account.balance)
+print(account.balance)
 
 let depositor = BankAccount.deposit
 depositor(account)(100)
-println(account.balance)
+print(account.balance)
 
 BankAccount.deposit(account)(100)
-println(account.balance)
+print(account.balance)
